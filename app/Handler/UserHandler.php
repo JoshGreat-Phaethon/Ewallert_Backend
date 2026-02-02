@@ -31,9 +31,7 @@ class UserHandler
 
     public function cekSaldo($userId)
     {
-        $user = $this->userRepo->findById($userId);
-
-        return $user ? $user->saldo : null;
+        return $user->saldo;
     }
 
     public function login($email,$password)

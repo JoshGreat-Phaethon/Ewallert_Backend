@@ -24,12 +24,10 @@ class UserController extends Controller
         ]);
     }
 
-    public function cekSaldo($id)
+    public function cekSaldo(Request $request)
     {
-        $saldo = $this->handler->cekSaldo($id);
-
         return response()->json([
-            'saldo' => $saldo
+            'saldo' => $request->user()->saldo
         ]);
     }
     public function login(Request $request)

@@ -17,9 +17,9 @@ class TransaksiHandler
         $this->transaksiRepo = $transaksiRepo;
     }
 
-    public function topUp($userId,$amount)
+    public function topUp($amount)
     {
-        $user = $this->userRepo->FindById($userId);
+        
         $user->saldo += $amount;
         $user->save();
 
@@ -30,18 +30,24 @@ class TransaksiHandler
         ]);
     }
      public function transfer(int $senderId, int $receiverId, int $amount)
-       {
+       {  // Menjamin transfer aman: gagal satu, semua dibatalkan
+
         return DB::transaction(function () use ($senderId, $receiverId, $amount){
             //ambil user 
             $sender = $this->userRepo->findById($senderId);
             $receiver = $this->userRepo->findById($receiverId);
-
+            //validasi usernya ada gak
             if (!$sender || !$receiver) {
                 throw new Exception('user Tidak DItemukan');
+            //validasi saldo    
             }
+            if ($sender->saldo < $amount) {
+                throw new Exception('saldo tidak cukup');
+            }
+            //mengurangi saldo pengirim
             $sender->saldo -= $amount;
             $sender->save();
-
+            //menambah saddo penerima
             $receiver->saldo += $amount;
             $receiver->save();
 
@@ -49,7 +55,8 @@ class TransaksiHandler
                 'sender_id' => $senderId,
                 'receiver_id' => $receiverId,
                 'amount' => $amount,
-                'type' => 'transfer'
+                'type' => 'transfer',
+                'saldo left' => $sender->saldo
             ]);
          });
         

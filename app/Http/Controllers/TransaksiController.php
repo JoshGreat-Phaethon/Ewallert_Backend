@@ -17,12 +17,10 @@ class TransaksiController extends Controller
     public function topUp(Request $request)
     {
         $request->validate([
-            'user_id' => 'required|integer',
             'amount'  => 'required|numeric|min:1'
         ]);
 
         $transaksi = $this->handler->topUp(
-            $request->user_id,
             $request->amount
         );
 
