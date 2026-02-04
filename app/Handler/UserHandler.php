@@ -4,6 +4,7 @@ namespace App\Handler;
 
 use App\Repository\UserRepository;
 use Illuminate\Support\Facades\Hash;
+use Exception;
 
 
 class UserHandler
@@ -53,4 +54,24 @@ class UserHandler
 {
     return $this->userRepo->getAll();
 }
+
+    public function deleteAccount(int $userId)
+    {
+        $user = $this->userRepo->findById($userId);
+
+        if(!$user) {
+            throw new Exception('user tidak ditemukan');
+
+            
+        }
+        if ($user->saldo > 0) {
+            throw new Exception('saldo harus 0');
+        }
+
+        return $this->userRepo->SoftDelete($userId);
+    }
+    
+        
+
+    
 }

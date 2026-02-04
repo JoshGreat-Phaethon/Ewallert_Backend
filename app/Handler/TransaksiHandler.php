@@ -5,6 +5,7 @@ use App\Repository\UserRepository;
 use App\Repository\TransaksiRepository;
 use Illuminate\Support\Facades\DB;
 use Exception;
+use App\Models\Transaksi;
 
 class TransaksiHandler
 {
@@ -17,17 +18,28 @@ class TransaksiHandler
         $this->transaksiRepo = $transaksiRepo;
     }
 
-    public function topUp($amount)
-    {
-        
-        $user->saldo += $amount;
-        $user->save();
+    public function topUp(int $userid,int $amount)
+    {   //biar semuanya berjalan sekaligus pakai db
+        return DB::transaction(function  () use ($userid, $amount) {
+            $user = $this->userRepo->findById($userid);
+            if (!$user) {
+                throw new Exception('user gaada');
+            }
+            //tambah salsdo
+            $user->saldo += $amount;
+            $user->save();
+            
 
-        return $this->transaksiRepo->create([
-            'receiver_id' =>$user->id,
-            'amount' =>$amount,
-            'type' => 'topup'
-        ]);
+            return Transaksi::create([
+                'receiver_id' => $userid,
+                'amount' => $amount,
+                'type' => 'topup'
+
+            ]);
+
+        });
+        
+        
     }
      public function transfer(int $senderId, int $receiverId, int $amount)
        {  // Menjamin transfer aman: gagal satu, semua dibatalkan
@@ -47,7 +59,7 @@ class TransaksiHandler
             //mengurangi saldo pengirim
             $sender->saldo -= $amount;
             $sender->save();
-            //menambah saddo penerima
+            //menambah saldo penerima
             $receiver->saldo += $amount;
             $receiver->save();
 

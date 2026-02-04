@@ -18,9 +18,12 @@ class TransaksiController extends Controller
     {
         $request->validate([
             'amount'  => 'required|numeric|min:1'
+            
         ]);
+        $user = $request->user();
 
         $transaksi = $this->handler->topUp(
+            $user->id,
             $request->amount
         );
 

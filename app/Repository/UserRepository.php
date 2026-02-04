@@ -26,5 +26,9 @@ class UserRepository
     {
         return User::all();
     }
+    public function SoftDelete(int $Id): bool 
+    {
+        return User::where('id',$id)->delete();
+    }
     
 }

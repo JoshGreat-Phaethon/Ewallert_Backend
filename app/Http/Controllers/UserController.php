@@ -57,6 +57,17 @@ class UserController extends Controller
         'users' => $users
     ]);
     }
+
+    public function deleteAccount(Request $request)
+    {
+        $user = $request->user();
+        
+        $this->handler->deleteAccount($user->id);
+
+        return response()->json([
+            'message' => 'akun berhasil dihapus'
+        ]);
+    }
 }
 
 
