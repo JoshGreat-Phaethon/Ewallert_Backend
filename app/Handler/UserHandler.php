@@ -51,9 +51,9 @@ class UserHandler
 
     }    
     public function allUsers()
-{
+    {
     return $this->userRepo->getAll();
-}
+    }       
 
     public function deleteAccount(int $userId)
     {
@@ -70,8 +70,23 @@ class UserHandler
 
         return $this->userRepo->SoftDelete($userId);
     }
+    public function restoreAccount(int $userId)
+    {
+        $user = $this->userRepo->findWithTrashed($userId);
+
+        if (!$user) {
+            throw new Exception('user tidak ada');
+        }
+        if (!$user->trashed()) {
+            throw new Exception('user belum terhapus');
+        }
+        return $this->userRepo->restore($userId);
+
+    }
     
+}    
         
 
     
-}
+ 
+        

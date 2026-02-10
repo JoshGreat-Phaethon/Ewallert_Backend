@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Handler\UserHandler;
+use App\Http\Resources\TransaksiResource;
 
 class UserController extends Controller
 {
@@ -68,6 +69,19 @@ class UserController extends Controller
             'message' => 'akun berhasil dihapus'
         ]);
     }
-}
+    public function restoreUser($id)
+    {
+        $this->handler->restoreAccount($id);
 
+        return response()->json([
+            'message' => 'akun berhasil dipulihkan'
+        ]);
+    }
+   
+    
+    
+
+
+    
+}
 

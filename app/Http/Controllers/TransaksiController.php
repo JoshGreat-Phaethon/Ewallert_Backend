@@ -4,6 +4,12 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Handler\TransaksiHandler;
+use App\Helpers\TransaksiSearchHelper;
+use App\Models\Transaksi;
+use App\Http\Resources\TransaksiResource; // ✅ FIX: singular
+use App\Http\Requests\TransferRequest;
+use App\Http\Requests\TopUpRequest;
+
 
 class TransaksiController extends Controller
 {
@@ -14,43 +20,63 @@ class TransaksiController extends Controller
         $this->handler = $handler;
     }
 
-    public function topUp(Request $request)
+    public function topUp(TopUpRequest $request)
     {
-        $request->validate([
-            'amount'  => 'required|numeric|min:1'
-            
-        ]);
-        $user = $request->user();
+       
+        $imagePath = null;
+
+        if($request->hasFile('image')) {
+            $imagePath = $request->file('image')
+            ->store('transaksi','public');
+        }
 
         $transaksi = $this->handler->topUp(
-            $user->id,
-            $request->amount
+            $request->user()->id,
+            $request->amount,
+            $imagePath
         );
 
-        return response()->json([
-            'message' => 'Top Up berhasil',
-            'transaksi' => $transaksi
-        ]);
+        return new TransaksiResource($transaksi);
+            
+        
     }
-    public function transfer(Request $request)
-    {
-        $data = $request->validate([
-            'receiver_id' => 'required|exists:users,id',
-            'amount' => 'required|integer|min:1',
-        ]);
 
+    public function transfer(TransferRequest $request)
+    {
+      
         $senderId = $request->user()->id;
 
         $transaksi = $this->handler->transfer(
-            $senderId,
-            $data['receiver_id'],
-            $data['amount']
+            $request->user()->id,
+            $request->receiver_id,
+            $request->amount
+
         );
-        return response()->json([
-            'message'=> 'transfer berhasil',
-            'transaksi' => $transaksi
-        ]);
+
+        return new TransaksiResource($transaksi);
+         
     }
 
+    public function index(Request $request)
+    {
+        $query = Transaksi::query()
+            ->where(function ($q) {
+                $q->where('sender_id', auth()->id())
+                  ->orWhere('receiver_id', auth()->id());
+            })
+            ->orderByDesc('created_at');
+
+        $query = TransaksiSearchHelper::apply($query, $request);
+       if ($request->query()) {
+        $perPage = $request->get('per_page' , 10);
+        $data = $query->paginate($perPage)->withQueryString();
+       } else {
+        $data = $query->get();
+       }
+
+
+        return TransaksiResource::collection($data); // ✅ FIX
+    }
     
+  
 }

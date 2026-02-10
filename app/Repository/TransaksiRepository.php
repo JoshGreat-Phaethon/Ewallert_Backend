@@ -1,6 +1,7 @@
 <?php
 namespace App\Repository;
 use App\Models\Transaksi;
+use App\Repository\Interface\BaseRepositoryInterface;
 
 class TransaksiRepository
 {

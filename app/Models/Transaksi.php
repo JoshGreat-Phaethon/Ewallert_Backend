@@ -8,7 +8,8 @@ class Transaksi extends Model
         'sender_id',
         'receiver_id',
         'amount',
-        'type'
+        'type',
+        'image'
     
     ];
 }

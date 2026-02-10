@@ -28,7 +28,18 @@ class UserRepository
     }
     public function SoftDelete(int $Id): bool 
     {
-        return User::where('id',$id)->delete();
+        return User::where('id',$Id)->delete();
+    }
+    public function findWithtrashed(int $id)
+    {
+        return User::withTrashed()->find($id);
+
+    }
+    public function restore(int $id): bool 
+    {
+        return User::withTrashed()
+        ->where('id',$id)
+        ->restore();
     }
     
 }

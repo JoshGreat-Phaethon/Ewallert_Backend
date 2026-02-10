@@ -17,60 +17,60 @@ class TransaksiHandler
         $this->userRepo = $userRepo;
         $this->transaksiRepo = $transaksiRepo;
     }
+    public function topUp(int $userId, int $amount, ?string $imagePath = null)
+{
+    return DB::transaction(function () use ($userId, $amount, $imagePath) {
 
-    public function topUp(int $userid,int $amount)
-    {   //biar semuanya berjalan sekaligus pakai db
-        return DB::transaction(function  () use ($userid, $amount) {
-            $user = $this->userRepo->findById($userid);
-            if (!$user) {
-                throw new Exception('user gaada');
-            }
-            //tambah salsdo
-            $user->saldo += $amount;
-            $user->save();
-            
+        $user = $this->userRepo->findById($userId);
+        if (!$user) {
+            throw new Exception('User tidak ditemukan');
+        }
 
-            return Transaksi::create([
-                'receiver_id' => $userid,
-                'amount' => $amount,
-                'type' => 'topup'
+        $user->saldo += $amount;
+        $user->save();
 
-            ]);
+        return $this->transaksiRepo->create([
+            'receiver_id' => $userId,
+            'amount' => $amount,
+            'type' => 'topup',
+            'image' => $imagePath,
+            'saldo_left' => $user->saldo,
+        ]);
+    });
 
-        });
+
+    
         
-        
-    }
+     }
      public function transfer(int $senderId, int $receiverId, int $amount)
-       {  // Menjamin transfer aman: gagal satu, semua dibatalkan
+{
+    return DB::transaction(function () use ($senderId, $receiverId, $amount) {
 
-        return DB::transaction(function () use ($senderId, $receiverId, $amount){
-            //ambil user 
-            $sender = $this->userRepo->findById($senderId);
-            $receiver = $this->userRepo->findById($receiverId);
-            //validasi usernya ada gak
-            if (!$sender || !$receiver) {
-                throw new Exception('user Tidak DItemukan');
-            //validasi saldo    
-            }
-            if ($sender->saldo < $amount) {
-                throw new Exception('saldo tidak cukup');
-            }
-            //mengurangi saldo pengirim
-            $sender->saldo -= $amount;
-            $sender->save();
-            //menambah saldo penerima
-            $receiver->saldo += $amount;
-            $receiver->save();
+        $sender = $this->userRepo->findById($senderId);
+        $receiver = $this->userRepo->findById($receiverId);
 
-            return $this->transaksiRepo->create([
-                'sender_id' => $senderId,
-                'receiver_id' => $receiverId,
-                'amount' => $amount,
-                'type' => 'transfer',
-                'saldo left' => $sender->saldo
-            ]);
-         });
-        
-       }
+        if (!$sender || !$receiver) {
+            throw new Exception('User tidak ditemukan');
+        }
+
+        if ($sender->saldo < $amount) {
+            throw new Exception('Saldo tidak cukup');
+        }
+
+        $sender->saldo -= $amount;
+        $sender->save();
+
+        $receiver->saldo += $amount;
+        $receiver->save();
+
+        return $this->transaksiRepo->create([
+            'sender_id' => $senderId,
+            'receiver_id' => $receiverId,
+            'amount' => $amount,
+            'type' => 'transfer',
+            'saldo_left' => $sender->saldo,
+        ]);
+    });
+    }
+
 }

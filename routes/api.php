@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\TransaksiController;
 use App\Http\Controllers\PromoNotificationController;
+use App\Helpers\TransaksiSearchHelper;
 
 
 
@@ -21,15 +22,18 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/promos', [PromoNotificationController::class, 'index']);
     Route::post('/logout',[UserController::class, 'logout']);
     Route::delete('/account',[UserController::class, 'deleteAccount']);
+    Route::middleware('auth:sanctum')->get('/transaksi', [TransaksiController::class, 'index']);
+    Route::post('/user/upload-image', [UserController::class, 'uploadImage']);
+
 
 });
 Route::middleware(['auth:sanctum', 'admin'])->group(function () {
     Route::get('/admin/users', [UserController::class, 'allUsers']);
     Route::post('/admin/promos', [PromoNotificationController::class, 'store']);
+    Route::post('/admin/users/{id}/restore', [UserController::class,'restoreUser']);
 });
 
 
 
 
-Route::post('/login',[UserController::class, 'login']);
 Route::post('/login',[UserController::class, 'login']);
