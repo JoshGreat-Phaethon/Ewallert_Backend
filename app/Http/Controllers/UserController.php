@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Handler\UserHandler;
 use App\Http\Resources\TransaksiResource;
+use App\Models\User;
 
 class UserController extends Controller
 {

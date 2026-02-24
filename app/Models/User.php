@@ -8,6 +8,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class User extends Authenticatable
 
@@ -26,6 +27,26 @@ class User extends Authenticatable
         'saldo',
         
     ];
+    protected function createdAt(): Attribute
+{
+    return Attribute::make(
+        get: fn ($value) =>
+            \Carbon\Carbon::parse($value)
+                ->timezone('Asia/Jakarta')
+                ->format('d-m-Y H:i:s') . ' WIB'
+    );
+}
+
+protected function updatedAt(): Attribute
+{
+    return Attribute::make(
+        get: fn ($value) =>
+            \Carbon\Carbon::parse($value)
+                ->timezone('Asia/Jakarta')
+                ->format('d-m-Y H:i:s') . ' WIB'
+    );
+}
+
 
     /**
      * The attributes that should be hidden for serialization.

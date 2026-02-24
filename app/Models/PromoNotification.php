@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Casts\Attribute;
+
 
 class PromoNotification extends Model
 {
@@ -19,4 +21,23 @@ class PromoNotification extends Model
         'ends_at' => 'datetime',
         'is_active' => 'boolean',
     ];
+     protected function createdAt(): Attribute
+{
+    return Attribute::make(
+        get: fn ($value) =>
+            \Carbon\Carbon::parse($value)
+                ->timezone('Asia/Jakarta')
+                ->format('d-m-Y H:i:s') . ' WIB'
+    );
+}
+
+protected function updatedAt(): Attribute
+{
+    return Attribute::make(
+        get: fn ($value) =>
+            \Carbon\Carbon::parse($value)
+                ->timezone('Asia/Jakarta')
+                ->format('d-m-Y H:i:s') . ' WIB'
+    );
+}
 }

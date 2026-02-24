@@ -30,7 +30,7 @@ class UserHandler
         
     }
 
-    public function cekSaldo($userId)
+    public function cekSaldo($user)
     {
         return $user->saldo;
     }
